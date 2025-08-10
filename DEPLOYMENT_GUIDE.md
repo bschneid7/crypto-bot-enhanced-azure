@@ -56,6 +56,7 @@ docker push botmonitorregistry.azurecr.io/enhanced-trading-bot:latest
 
 # Deploy container
 az container create --resource-group bot-monitoring-rg --file azure-deploy.yml
+
 ```
 
 ## 📊 Monitoring Integration
