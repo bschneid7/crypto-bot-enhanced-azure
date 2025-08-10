@@ -1,0 +1,9 @@
+Flask==2.3.3
+Flask-CORS==4.0.0
+requests==2.31.0
+python-binance==1.0.19
+numpy==1.24.3
+pandas==2.0.3
+Werkzeug==2.3.7
+gunicorn==21.2.0
+
