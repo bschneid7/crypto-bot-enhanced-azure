@@ -1,122 +1,155 @@
-# Enhanced AI Crypto Trading Bot
+# Live AI Crypto Trading Bot - Azure Deployment
 
-🤖 **Advanced AI-powered cryptocurrency trading bot with real algorithms and 24/7 Azure deployment**
+## 🚀 Live Trading Features
 
-## 🚀 Features
+This bot has been upgraded to **LIVE TRADING** with aggressive settings and real money execution on Binance.US.
 
-### Core Trading Algorithms
-- **MACD Analysis**: Advanced technical analysis with trend detection
-- **Whale Detection**: Large transaction monitoring for market insights
-- **Signal Generation**: Real-time buy/sell signal creation
-- **Automated Trade Execution**: Live trading based on AI signals
-- **Risk Management**: Position sizing and stop-loss automation
+### Key Features
+- **Live-Only Mode**: No paper trading - real money, real profits
+- **Aggressive Strategy**: 10% per-trade risk on 80% of portfolio
+- **Risk Management**: 30% daily loss stop with auto-halt
+- **Symbols**: BTCUSD and SOLUSD (USD-quoted pairs)
+- **Enhanced Features**: MACD analysis, whale detection, dynamic sizing
+- **Emergency Controls**: Hard kill switch and live trading toggle
 
-### Enhanced Capabilities
-- **Portfolio Management**: Real-time Binance integration
-- **Performance Tracking**: Comprehensive trading analytics
-- **24/7 Operation**: Azure Container Instances deployment
-- **Automatic Recovery**: Enterprise-grade monitoring system
-- **Email Alerts**: Critical issue notifications
+## 📊 Trading Configuration
 
-## 📊 System Architecture
+### Risk Parameters
+- **Per-Trade Risk**: 10% of managed equity
+- **Daily Loss Stop**: 30% (auto-halt all trading)
+- **Managed Fraction**: 80% of total portfolio
+- **Max Concurrent Positions**: 20
+- **Max Consecutive Losses**: 4 (then 2-hour cooldown)
 
-```
-Azure Cloud Infrastructure
-├── Enhanced Trading Bot Container
-│   ├── AI Trading Algorithms (MACD, Whale Detection)
-│   ├── Automated Trade Execution Engine
-│   ├── Binance API Integration
-│   ├── Portfolio Management System
-│   └── Performance Analytics
-│
-└── Monitoring System Container
-    ├── 24/7 Health Monitoring
-    ├── Automatic Recovery Procedures
-    ├── Email Alert System
-    └── Performance Tracking
-```
+### Technical Analysis
+- **MACD**: 12/26/9 settings
+- **EMA**: 200-period trend filter
+- **ATR**: 14-period for stop/target calculation
+- **Volume**: Z-score analysis for confirmation
+- **Whale Detection**: Large trade and imbalance monitoring
 
-## 🔧 Deployment
+## 🛠️ Setup Instructions
 
-### Automatic Deployment
-- **GitHub Actions**: Automatic deployment on code push
-- **Azure Container Instances**: Scalable, reliable hosting
-- **Environment Variables**: Secure API key management
-- **Health Checks**: Automatic restart on failure
+### 1. Environment Variables
+Create a `.env` file with your Binance.US credentials:
 
-### Manual Deployment
 ```bash
-# Deploy to Azure
-az container create --resource-group bot-monitoring-rg --file azure-deploy.yml
-
-# Check status
-az container show --resource-group bot-monitoring-rg --name enhanced-trading-bot
-
-# View logs
-az container logs --resource-group bot-monitoring-rg --name enhanced-trading-bot
+BINANCE_US_API_KEY=your_api_key_here
+BINANCE_US_API_SECRET=your_api_secret_here
+TRADE_ENABLED=false
+HARD_KILL=false
+PORT=8080
+LOG_LEVEL=INFO
 ```
 
-## 📈 Trading Performance
+### 2. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
 
-- **Real-time Analysis**: Continuous market scanning
-- **Signal Strength Scoring**: Multi-factor analysis
-- **Risk-based Position Sizing**: Automated trade sizing
-- **Stop-loss/Take-profit**: Automatic risk management
-- **Performance Metrics**: Win rate, profit tracking
+### 3. Run Locally
+```bash
+python app.py
+```
 
-## 🔐 Security
+### 4. Enable Live Trading
+1. Set `TRADE_ENABLED=true` in your environment
+2. Use the dashboard toggle to enable/disable trading
+3. Use HARD KILL for emergency stops
 
-- **Secure Environment Variables**: API keys stored securely
-- **Private Repository**: Source code protection
-- **Azure Security**: Enterprise-grade infrastructure
-- **API Rate Limiting**: Binance API compliance
+## 🔧 Core Components
 
-## 💰 Cost Optimization
+### Trading Engine (`core/engine.py`)
+- Main trading logic and signal processing
+- Risk gate validation before each trade
+- Position sizing and order management
 
-- **Efficient Resource Usage**: 1 CPU, 1GB RAM
-- **Estimated Cost**: $3-6/month for 24/7 operation
-- **Auto-scaling**: Resources adjust based on load
-- **Cost Monitoring**: Azure cost alerts configured
+### Signal Generation (`core/signals.py`)
+- MACD trend analysis
+- EMA 200 trend filter
+- Volume spike detection
+- Whale activity monitoring
 
-## 📧 Monitoring & Alerts
+### Risk Management (`core/risk.py`)
+- Daily loss tracking and limits
+- Consecutive loss streak protection
+- Cooldown periods after losses
+- Position allocation controls
 
-- **Email Notifications**: Critical issues sent to bschneid7@gmail.com
-- **Health Checks**: Every 3 minutes
-- **Automatic Recovery**: Soft and hard restart procedures
-- **Performance Reports**: Daily trading summaries
+### Live Broker (`core/broker.py`)
+- Market order execution
+- OCO (One-Cancels-Other) emulation
+- Stop-loss and take-profit management
+- Order reconciliation
 
-## 🎯 Getting Started
+### Data Feed (`core/datafeed.py`)
+- Real-time market data from Binance.US
+- Whale transaction detection
+- Portfolio equity calculation
 
-1. **Clone Repository**: `git clone [repository-url]`
-2. **Configure Secrets**: Add Binance API keys to GitHub secrets
-3. **Deploy**: Push to main branch triggers automatic deployment
-4. **Monitor**: Check dashboard at deployed URL
+## 📈 Dashboard Features
 
-## 📋 Environment Variables
+### Live Controls
+- **Trade Toggle**: Enable/disable live trading
+- **Hard Kill**: Emergency stop for all new trades
+- **Real-time Status**: System health and connectivity
 
-- `BINANCE_API_KEY`: Your Binance API key
-- `BINANCE_SECRET_KEY`: Your Binance secret key
-- `FLASK_ENV`: Application environment (production)
-- `TZ`: Timezone (UTC)
+### Performance Monitoring
+- **Daily P&L**: Real-time profit/loss tracking
+- **Portfolio Value**: Live equity updates
+- **Risk Progress**: Daily stop limit visualization
+- **Trade History**: Recent execution details
 
-## 🔗 API Endpoints
+### Risk Indicators
+- **Loss Streak**: Consecutive losing trades
+- **Cooldown Timer**: Time remaining in cooldown
+- **Error Count**: System error tracking
+- **Position Limits**: Current vs maximum positions
 
-- `/`: Trading bot dashboard
-- `/api/metrics`: System metrics and performance
-- `/api/trading/start`: Start automated trading
-- `/api/trading/signals`: Current market signals
-- `/api/trading/scan`: Manual market scan
+## ⚠️ Important Notes
+
+### Live Trading Warnings
+- This bot trades with **REAL MONEY**
+- Losses can be substantial (up to 30% daily)
+- Always monitor the dashboard regularly
+- Use the HARD KILL switch if needed
+
+### API Requirements
+- Binance.US account with trading enabled
+- API keys with spot trading permissions
+- Sufficient balance for position sizing
+
+### Risk Disclaimer
+- Cryptocurrency trading involves substantial risk
+- Past performance does not guarantee future results
+- Only trade with money you can afford to lose
+- The bot operates autonomously once enabled
+
+## 🚀 Deployment
+
+### Azure Container Instances
+The bot is configured for Azure deployment with:
+- Automatic restarts on failure
+- Environment variable configuration
+- 24/7 operation without sleep issues
+- Persistent logging and monitoring
+
+### GitHub Actions
+Automated deployment pipeline:
+1. Push changes to main branch
+2. GitHub Actions builds and deploys
+3. Azure updates the running container
+4. Zero-downtime deployment
 
 ## 📞 Support
 
-For issues or questions about the enhanced AI crypto trading bot:
-- Check the logs via Azure CLI
-- Review GitHub Actions deployment status
-- Monitor email alerts for system notifications
+For issues or questions:
+1. Check the dashboard error count
+2. Review application logs
+3. Verify API connectivity
+4. Use HARD KILL if needed
 
----
-
-**⚠️ Trading Risk Disclaimer**: Cryptocurrency trading involves substantial risk. This bot is for educational and experimental purposes. Trade responsibly and never invest more than you can afford to lose.
+**Remember**: This is live trading software. Always monitor your positions and be prepared to intervene manually if needed.
 
 
 
