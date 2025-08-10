@@ -1,0 +1,113 @@
+name: Deploy Enhanced Trading Bot to Azure
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  REGISTRY_NAME: botmonitorregistry
+  IMAGE_NAME: enhanced-trading-bot
+  RESOURCE_GROUP: bot-monitoring-rg
+  CONTAINER_NAME: enhanced-trading-bot
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Login to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Login to Azure Container Registry
+      run: |
+        az acr login --name ${{ env.REGISTRY_NAME }}
+    
+    - name: Build and push Docker image
+      run: |
+        docker build -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }} .
+        docker build -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest .
+        docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+        docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest
+    
+    - name: Create deployment YAML
+      run: |
+        cat > deployment.yaml << EOF
+        apiVersion: 2021-03-01
+        location: westus
+        name: ${{ env.CONTAINER_NAME }}
+        properties:
+          containers:
+          - name: enhanced-ai-trading-bot
+            properties:
+              image: ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest
+              resources:
+                requests:
+                  cpu: 1.0
+                  memoryInGb: 1.0
+              ports:
+              - port: 8080
+                protocol: TCP
+              environmentVariables:
+                - name: FLASK_ENV
+                  value: production
+                - name: PYTHONUNBUFFERED
+                  value: "1"
+                - name: TZ
+                  value: UTC
+                - name: PORT
+                  value: "8080"
+                - name: BINANCE_API_KEY
+                  secureValue: ${{ secrets.BINANCE_API_KEY }}
+                - name: BINANCE_SECRET_KEY
+                  secureValue: ${{ secrets.BINANCE_SECRET_KEY }}
+          osType: Linux
+          restartPolicy: Always
+          ipAddress:
+            type: Public
+            ports:
+            - protocol: TCP
+              port: 8080
+          imageRegistryCredentials:
+          - server: ${{ env.REGISTRY_NAME }}.azurecr.io
+            username: ${{ secrets.REGISTRY_USERNAME }}
+            password: ${{ secrets.REGISTRY_PASSWORD }}
+        tags:
+          purpose: enhanced-crypto-trading-bot
+          environment: production
+          type: ai-trading-system
+        EOF
+    
+    - name: Deploy to Azure Container Instances
+      run: |
+        az container create \
+          --resource-group ${{ env.RESOURCE_GROUP }} \
+          --file deployment.yaml
+    
+    - name: Get deployment info
+      run: |
+        echo "Getting deployment information..."
+        PUBLIC_IP=$(az container show \
+          --resource-group ${{ env.RESOURCE_GROUP }} \
+          --name ${{ env.CONTAINER_NAME }} \
+          --query "ipAddress.ip" \
+          --output tsv)
+        
+        echo "Enhanced AI Trading Bot deployed successfully!"
+        echo "Dashboard URL: http://$PUBLIC_IP:8080"
+        echo "API Endpoint: http://$PUBLIC_IP:8080/api/metrics"
+        echo "Health Check: http://$PUBLIC_IP:8080/health"
+    
+    - name: Verify deployment
+      run: |
+        az container show \
+          --resource-group ${{ env.RESOURCE_GROUP }} \
+          --name ${{ env.CONTAINER_NAME }} \
+          --query "provisioningState" \
+          --output tsv
+
