@@ -23,7 +23,7 @@ class LiveBroker:
         client_id = client_id or f"{symbol}-{side}-ENT-{uuid.uuid4().hex[:10]}"
         qty, _ = self._round(symbol, qty=qty)
         # Replace below with your client call for MARKET order:
-        resp = self.client.new_order(symbol=symbol, side=side, type="MARKET", quantity=str(qty), newClientOrderId=client_id)
+        resp = self.client.create_order(symbol=symbol, side=side, type="MARKET", quantity=str(qty), newClientOrderId=client_id)
         return resp
 
     def place_stop_loss(self, symbol, side, qty, stop_price, limit_price, client_id=None):
@@ -33,7 +33,7 @@ class LiveBroker:
         _, limit_price = self._round(symbol, price=limit_price)
         cid = client_id or f"{symbol}-{exit_side}-SL-{uuid.uuid4().hex[:8]}"
         # Replace with your STOP_LOSS_LIMIT call; on Binance.US it's typically type="STOP_LOSS_LIMIT"
-        return self.client.new_order(symbol=symbol, side=exit_side, type="STOP_LOSS_LIMIT",
+        return self.client.create_order(symbol=symbol, side=exit_side, type="STOP_LOSS_LIMIT",
                                      quantity=str(qty), price=str(limit_price),
                                      stopPrice=str(stop_price), timeInForce="GTC",
                                      newClientOrderId=cid)
@@ -42,7 +42,7 @@ class LiveBroker:
         exit_side = "SELL" if side == "BUY" else "BUY"
         qty, tp_price = self._round(symbol, qty=qty, price=tp_price)
         cid = client_id or f"{symbol}-{exit_side}-TP-{uuid.uuid4().hex[:8]}"
-        return self.client.new_order(symbol=symbol, side=exit_side, type="LIMIT",
+        return self.client.create_order(symbol=symbol, side=exit_side, type="LIMIT",
                                      quantity=str(qty), price=str(tp_price),
                                      timeInForce="GTC", newClientOrderId=cid)
 
@@ -62,4 +62,3 @@ class LiveBroker:
                     self.cancel_order(symbol, client_order_id=o['clientOrderId'])
         except Exception:
             pass
-
